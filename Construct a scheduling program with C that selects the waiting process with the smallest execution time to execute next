@@ -1,0 +1,68 @@
+#include <stdio.h>
+
+// Structure to represent a process
+struct Process {
+    int id;
+    int arrivalTime;
+    int executionTime;
+};
+
+// Function to find the process with the smallest execution time
+int findShortestJob(struct Process processes[], int n, int currentTime) {
+    int shortestJobIndex = -1;
+    int shortestExecutionTime = -1;
+
+    for (int i = 0; i < n; i++) {
+        // Check if the process has arrived and not yet executed
+        if (processes[i].arrivalTime <= currentTime && processes[i].executionTime > 0) {
+            // If it's the first eligible process or has a smaller execution time
+            if (shortestExecutionTime == -1 || processes[i].executionTime < shortestExecutionTime) {
+                shortestExecutionTime = processes[i].executionTime;
+                shortestJobIndex = i;
+            }
+        }
+    }
+
+    return shortestJobIndex;
+}
+
+// Function to simulate the scheduling
+void scheduleProcesses(struct Process processes[], int n) {
+    int currentTime = 0;
+
+    printf("Execution Order: ");
+
+    for (int i = 0; i < n; i++) {
+        // Find the process with the smallest execution time
+        int shortestJobIndex = findShortestJob(processes, n, currentTime);
+
+        if (shortestJobIndex == -1) {
+            // No eligible process found at this time, move to the next
+            currentTime++;
+        } else {
+            // Execute the selected process
+            printf("P%d ", processes[shortestJobIndex].id);
+            processes[shortestJobIndex].executionTime--;
+            currentTime++;
+        }
+    }
+
+    printf("\n");
+}
+
+int main() {
+    // Example processes
+    struct Process processes[] = {
+        {1, 0, 6},
+        {2, 2, 4},
+        {3, 4, 3},
+        {4, 6, 8}
+    };
+
+    int n = sizeof(processes) / sizeof(processes[0]);
+
+    // Run the scheduling algorithm
+    scheduleProcesses(processes, n);
+
+    return 0;
+}
