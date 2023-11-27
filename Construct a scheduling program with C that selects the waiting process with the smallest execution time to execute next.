@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Process {
+    int process_id;
+    int arrival_time;
+    int burst_time;
+    int remaining_time; // Remaining time to complete execution
+};
+
+void swap(struct Process *xp, struct Process *yp) {
+    struct Process temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+// Function to perform selection sort based on burst time
+void sortByBurstTime(struct Process processes[], int n) {
+    int i, j;
+    for (i = 0; i < n-1; i++) {
+        for (j = 0; j < n-i-1; j++) {
+            if (processes[j].burst_time > processes[j+1].burst_time) {
+                swap(&processes[j], &processes[j+1]);
+            }
+        }
+    }
+}
+
+// Function to perform SJF scheduling
+void sjfScheduling(struct Process processes[], int n) {
+    int currentTime = 0;
+
+    sortByBurstTime(processes, n);
+
+    printf("\nProcess\t Arrival Time\t Burst Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t %d\t\t %d\n",
+               processes[i].process_id,
+               processes[i].arrival_time,
+               processes[i].burst_time);
+    }
+
+    printf("\nGantt Chart:\n");
+    printf("-----------\n");
+
+    for (int i = 0; i < n; i++) {
+        while (currentTime < processes[i].arrival_time) {
+            printf("| idle ");
+            currentTime++;
+        }
+
+        printf("| P%d ", processes[i].process_id);
+        currentTime += processes[i].burst_time;
+    }
+
+    printf("|\n");
+}
+
+int main() {
+    int n;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    struct Process processes[n];
+
+    // Input process details
+    for (int i = 0; i < n; i++) {
+        processes[i].process_id = i + 1;
+        printf("Enter arrival time for process %d: ", i + 1);
+        scanf("%d", &processes[i].arrival_time);
+        printf("Enter burst time for process %d: ", i + 1);
+        scanf("%d", &processes[i].burst_time);
+        processes[i].remaining_time = processes[i].burst_time;
+    }
+
+    // Perform SJF Scheduling
+    sjfScheduling(processes, n);
+
+    return 0;
+}
