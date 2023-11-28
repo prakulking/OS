@@ -1,0 +1,79 @@
+#include <stdio.h>
+
+// Structure to represent a process
+struct Process {
+    int id;
+    int priority;
+    int burstTime;
+    int remainingTime;
+};
+
+// Function to find the process with the highest priority
+int findHighestPriority(struct Process queue[], int n) {
+    int highestPriorityIndex = -1;
+
+    for (int i = 0; i < n; ++i) {
+        if (queue[i].remainingTime > 0) {
+            if (highestPriorityIndex == -1 || queue[i].priority < queue[highestPriorityIndex].priority) {
+                highestPriorityIndex = i;
+            }
+        }
+    }
+
+    return highestPriorityIndex;
+}
+
+// Function to perform preemptive priority scheduling
+void preemptivePriorityScheduling(struct Process queue[], int n) {
+    int currentTime = 0;
+
+    printf("\nPreemptive Priority Scheduling:\n");
+
+    while (1) {
+        int selectedProcessIndex = findHighestPriority(queue, n);
+
+        if (selectedProcessIndex == -1) {
+            break; // No remaining processes
+        }
+
+        // Execute the selected process for 1 unit of time
+        queue[selectedProcessIndex].remainingTime--;
+
+        printf("Time %d: Executing Process %d (Priority: %d)\n",
+               currentTime, queue[selectedProcessIndex].id, queue[selectedProcessIndex].priority);
+
+        currentTime++;
+
+        // Check if the process has completed
+        if (queue[selectedProcessIndex].remainingTime == 0) {
+            printf("Process %d completed.\n", queue[selectedProcessIndex].id);
+        }
+    }
+}
+
+int main() {
+    // Number of processes
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    // Array to store processes
+    struct Process processes[n];
+
+    // Input processes, priorities, and burst times
+    for (int i = 0; i < n; ++i) {
+        printf("Enter priority for process %d: ", i + 1);
+        scanf("%d", &processes[i].priority);
+
+        printf("Enter burst time for process %d: ", i + 1);
+        scanf("%d", &processes[i].burstTime);
+
+        processes[i].id = i + 1;
+        processes[i].remainingTime = processes[i].burstTime;
+    }
+
+    // Perform preemptive priority scheduling
+    preemptivePriorityScheduling(processes, n);
+
+    return 0;
+}
