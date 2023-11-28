@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+// Structure to represent shared data
+struct SharedData {
+    int value;
+};
+
+int main() {
+    const char* shm_name = "/my_shared_memory";  // Name of the shared memory object
+    const int SIZE = sizeof(struct SharedData);  // Size of the shared memory
+
+    // Create a shared memory object
+    int shm_fd = shm_open(shm_name, O_CREAT | O_RDWR, 0666);
+    if (shm_fd == -1) {
+        perror("shm_open");
+        exit(EXIT_FAILURE);
+    }
+
+    // Set the size of the shared memory
+    if (ftruncate(shm_fd, SIZE) == -1) {
+        perror("ftruncate");
+        exit(EXIT_FAILURE);
+    }
+
+    // Map the shared memory object into the address space of the process
+    struct SharedData *shared_data = (struct SharedData *)mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    if (shared_data == MAP_FAILED) {
+        perror("mmap");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize the shared data
+    shared_data->value = 0;
+
+    // Fork a child process
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    } else if (pid == 0) {
+        // Child process
+        sleep(1); // Wait for the parent to write to shared memory
+
+        printf("Child Process: Value read from shared memory: %d\n", shared_data->value);
+    } else {
+        // Parent process
+        printf("Parent Process: Writing to shared memory\n");
+
+        // Update the value in shared memory
+        shared_data->value = 42;
+
+        // Wait for the child to complete
+        wait(NULL);
+
+        // Unmap the shared memory
+        if (munmap(shared_data, SIZE) == -1) {
+            perror("munmap");
+            exit(EXIT_FAILURE);
+        }
+
+        // Close the shared memory object
+        if (close(shm_fd) == -1) {
+            perror("close");
+            exit(EXIT_FAILURE);
+        }
+
+        // Unlink the shared memory object
+        if (shm_unlink(shm_name) == -1) {
+            perror("shm_unlink");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    return 0;
+}
