@@ -1,0 +1,47 @@
+#include <stdio.h>
+
+// Structure to represent a process
+struct Process {
+    int id;
+    int priority;
+};
+
+// Function to select the process with the highest priority
+int selectHighestPriority(struct Process queue[], int n) {
+    int highestPriorityIndex = 0;
+    
+    for (int i = 1; i < n; ++i) {
+        if (queue[i].priority < queue[highestPriorityIndex].priority) {
+            highestPriorityIndex = i;
+        }
+    }
+    
+    return highestPriorityIndex;
+}
+
+int main() {
+    // Number of processes
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+    
+    // Array to store processes
+    struct Process processes[n];
+    
+    // Input processes and priorities
+    for (int i = 0; i < n; ++i) {
+        printf("Enter priority for process %d: ", i + 1);
+        scanf("%d", &processes[i].priority);
+        processes[i].id = i + 1;
+    }
+    
+    // Select the process with the highest priority
+    int selectedProcessIndex = selectHighestPriority(processes, n);
+    
+    // Display the selected process
+    printf("Selected process: Process %d with priority %d\n",
+           processes[selectedProcessIndex].id,
+           processes[selectedProcessIndex].priority);
+    
+    return 0;
+}
