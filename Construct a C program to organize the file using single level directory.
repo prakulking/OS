@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_FILES 10
+#define MAX_FILE_NAME_LENGTH 20
+
+// Structure to represent a file
+struct File {
+    char name[MAX_FILE_NAME_LENGTH];
+};
+
+// Structure to represent a directory
+struct Directory {
+    struct File files[MAX_FILES];
+    int fileCount;
+};
+
+// Function declarations
+void initializeDirectory(struct Directory *dir);
+void addFile(struct Directory *dir, const char *fileName);
+void listFiles(const struct Directory *dir);
+void deleteFile(struct Directory *dir, const char *fileName);
+
+int main() {
+    struct Directory directory;
+    initializeDirectory(&directory);
+
+    // Add files to the directory
+    addFile(&directory, "file1.txt");
+    addFile(&directory, "file2.txt");
+    addFile(&directory, "file3.txt");
+
+    // List files in the directory
+    printf("Files in the directory:\n");
+    listFiles(&directory);
+
+    // Delete a file from the directory
+    deleteFile(&directory, "file2.txt");
+
+    // List files in the directory after deletion
+    printf("Files in the directory after deletion:\n");
+    listFiles(&directory);
+
+    return 0;
+}
+
+void initializeDirectory(struct Directory *dir) {
+    dir->fileCount = 0;
+}
+
+void addFile(struct Directory *dir, const char *fileName) {
+    if (dir->fileCount < MAX_FILES) {
+        strcpy(dir->files[dir->fileCount].name, fileName);
+        dir->fileCount++;
+        printf("File '%s' added to the directory.\n", fileName);
+    } else {
+        printf("Directory is full. Cannot add file '%s'.\n", fileName);
+    }
+}
+
+void listFiles(const struct Directory *dir) {
+    if (dir->fileCount == 0) {
+        printf("No files in the directory.\n");
+    } else {
+        for (int i = 0; i < dir->fileCount; i++) {
+            printf("%d. %s\n", i + 1, dir->files[i].name);
+        }
+    }
+}
+
+void deleteFile(struct Directory *dir, const char *fileName) {
+    int found = 0;
+    for (int i = 0; i < dir->fileCount; i++) {
+        if (strcmp(dir->files[i].name, fileName) == 0) {
+            found = 1;
+            // Remove the file by shifting remaining files
+            for (int j = i; j < dir->fileCount - 1; j++) {
+                strcpy(dir->files[j].name, dir->files[j + 1].name);
+            }
+            dir->fileCount--;
+            printf("File '%s' deleted from the directory.\n", fileName);
+            break;
+        }
+    }
+
+    if (!found) {
+        printf("File '%s' not found in the directory.\n", fileName);
+    }
+}
