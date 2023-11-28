@@ -1,0 +1,137 @@
+#include <stdio.h>
+
+#define MEMORY_SIZE 1000
+
+// Process structure
+struct Process {
+    int id;
+    int size;
+};
+
+// Function declarations
+void initializeMemory();
+int firstFit(struct Process p);
+int bestFit(struct Process p);
+int worstFit(struct Process p);
+void deallocate(int start, int size);
+void displayMemory();
+
+// Global variables
+char memory[MEMORY_SIZE];
+
+int main() {
+    initializeMemory();
+
+    struct Process processes[] = {
+        {1, 200},
+        {2, 300},
+        {3, 150},
+        {4, 400},
+    };
+
+    // Allocate processes using different strategies
+    for (int i = 0; i < sizeof(processes) / sizeof(processes[0]); i++) {
+        int firstFitResult = firstFit(processes[i]);
+        int bestFitResult = bestFit(processes[i]);
+        int worstFitResult = worstFit(processes[i]);
+
+        printf("Process %d:\n", processes[i].id);
+        printf("First Fit: %d\n", firstFitResult);
+        printf("Best Fit: %d\n", bestFitResult);
+        printf("Worst Fit: %d\n", worstFitResult);
+
+        displayMemory();
+    }
+
+    return 0;
+}
+
+void initializeMemory() {
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        memory[i] = '.';
+    }
+}
+
+int firstFit(struct Process p) {
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        int count = 0;
+        while (i < MEMORY_SIZE && memory[i] == '.') {
+            count++;
+            i++;
+        }
+
+        if (count >= p.size) {
+            for (int j = i - count; j < i; j++) {
+                memory[j] = '#';
+            }
+            return i - count;
+        }
+    }
+    return -1; // Unable to allocate
+}
+
+int bestFit(struct Process p) {
+    int bestFitStart = -1;
+    int bestFitSize = MEMORY_SIZE;
+
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        int count = 0;
+        while (i < MEMORY_SIZE && memory[i] == '.') {
+            count++;
+            i++;
+        }
+
+        if (count >= p.size && count < bestFitSize) {
+            bestFitSize = count;
+            bestFitStart = i - count;
+        }
+    }
+
+    if (bestFitStart != -1) {
+        for (int j = bestFitStart; j < bestFitStart + p.size; j++) {
+            memory[j] = '#';
+        }
+    }
+
+    return bestFitStart;
+}
+
+int worstFit(struct Process p) {
+    int worstFitStart = -1;
+    int worstFitSize = 0;
+
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        int count = 0;
+        while (i < MEMORY_SIZE && memory[i] == '.') {
+            count++;
+            i++;
+        }
+
+        if (count >= p.size && count > worstFitSize) {
+            worstFitSize = count;
+            worstFitStart = i - count;
+        }
+    }
+
+    if (worstFitStart != -1) {
+        for (int j = worstFitStart; j < worstFitStart + p.size; j++) {
+            memory[j] = '#';
+        }
+    }
+
+    return worstFitStart;
+}
+
+void deallocate(int start, int size) {
+    for (int i = start; i < start + size; i++) {
+        memory[i] = '.';
+    }
+}
+
+void displayMemory() {
+    printf("Memory: ");
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        printf("%c ", memory[i]);
+    }
+    printf("\n\n");
+}
