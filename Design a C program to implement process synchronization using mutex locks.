@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <pthread.h>
+
+#define NUM_THREADS 2
+#define ITERATIONS 5
+
+int sharedVariable = 0;
+pthread_mutex_t mutex;
+
+void *incrementVariable(void *threadID) {
+    for (int i = 0; i < ITERATIONS; i++) {
+        pthread_mutex_lock(&mutex);
+
+        // Critical section: increment the shared variable
+        sharedVariable++;
+        printf("Thread %ld: Shared Variable = %d\n", (long)threadID, sharedVariable);
+
+        pthread_mutex_unlock(&mutex);
+
+        // Simulate some work
+        usleep(1000);
+    }
+
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t threads[NUM_THREADS];
+    int threadIDs[NUM_THREADS];
+
+    // Initialize mutex
+    pthread_mutex_init(&mutex, NULL);
+
+    // Create threads
+    for (long i = 0; i < NUM_THREADS; i++) {
+        threadIDs[i] = i;
+        pthread_create(&threads[i], NULL, incrementVariable, (void *)i);
+    }
+
+    // Wait for threads to finish
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    // Destroy mutex
+    pthread_mutex_destroy(&mutex);
+
+    return 0;
+}
