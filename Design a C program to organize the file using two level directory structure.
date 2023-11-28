@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_DIRECTORIES 5
+#define MAX_FILES_PER_DIRECTORY 10
+#define MAX_DIRECTORY_NAME_LENGTH 20
+#define MAX_FILE_NAME_LENGTH 20
+
+// Structure to represent a file
+struct File {
+    char name[MAX_FILE_NAME_LENGTH];
+};
+
+// Structure to represent a directory
+struct Directory {
+    char name[MAX_DIRECTORY_NAME_LENGTH];
+    struct File files[MAX_FILES_PER_DIRECTORY];
+    int fileCount;
+};
+
+// Structure to represent the file system
+struct FileSystem {
+    struct Directory directories[MAX_DIRECTORIES];
+    int directoryCount;
+};
+
+// Function declarations
+void initializeFileSystem(struct FileSystem *fs);
+void createDirectory(struct FileSystem *fs, const char *dirName);
+void addFile(struct FileSystem *fs, const char *dirName, const char *fileName);
+void listFiles(const struct FileSystem *fs, const char *dirName);
+void deleteFile(struct FileSystem *fs, const char *dirName, const char *fileName);
+
+int main() {
+    struct FileSystem fileSystem;
+    initializeFileSystem(&fileSystem);
+
+    // Create directories
+    createDirectory(&fileSystem, "Documents");
+    createDirectory(&fileSystem, "Pictures");
+
+    // Add files to directories
+    addFile(&fileSystem, "Documents", "doc1.txt");
+    addFile(&fileSystem, "Documents", "doc2.txt");
+    addFile(&fileSystem, "Pictures", "pic1.jpg");
+
+    // List files in directories
+    printf("Files in 'Documents' directory:\n");
+    listFiles(&fileSystem, "Documents");
+
+    printf("\nFiles in 'Pictures' directory:\n");
+    listFiles(&fileSystem, "Pictures");
+
+    // Delete a file from a directory
+    deleteFile(&fileSystem, "Documents", "doc1.txt");
+
+    // List files in the 'Documents' directory after deletion
+    printf("\nFiles in 'Documents' directory after deletion:\n");
+    listFiles(&fileSystem, "Documents");
+
+    return 0;
+}
+
+void initializeFileSystem(struct FileSystem *fs) {
+    fs->directoryCount = 0;
+}
+
+void createDirectory(struct FileSystem *fs, const char *dirName) {
+    if (fs->directoryCount < MAX_DIRECTORIES) {
+        strcpy(fs->directories[fs->directoryCount].name, dirName);
+        fs->directories[fs->directoryCount].fileCount = 0;
+        fs->directoryCount++;
+        printf("Directory '%s' created.\n", dirName);
+    } else {
+        printf("Maximum number of directories reached. Cannot create '%s'.\n", dirName);
+    }
+}
+
+void addFile(struct FileSystem *fs, const char *dirName, const char *fileName) {
+    for (int i = 0; i < fs->directoryCount; i++) {
+        if (strcmp(fs->directories[i].name, dirName) == 0) {
+            if (fs->directories[i].fileCount < MAX_FILES_PER_DIRECTORY) {
+                strcpy(fs->directories[i].files[fs->directories[i].fileCount].name, fileName);
+                fs->directories[i].fileCount++;
+                printf("File '%s' added to '%s' directory.\n", fileName, dirName);
+            } else {
+                printf("Maximum number of files reached in '%s'. Cannot add '%s'.\n", dirName, fileName);
+            }
+            return;
+        }
+    }
+
+    printf("Directory '%s' not found. Cannot add file '%s'.\n", dirName, fileName);
+}
+
+void listFiles(const struct FileSystem *fs, const char *dirName) {
+    for (int i = 0; i < fs->directoryCount; i++) {
+        if (strcmp(fs->directories[i].name, dirName) == 0) {
+            if (fs->directories[i].fileCount == 0) {
+                printf("No files in '%s' directory.\n", dirName);
+            } else {
+                for (int j = 0; j < fs->directories[i].fileCount; j++) {
+                    printf("%d. %s\n", j + 1, fs->directories[i].files[j].name);
+                }
+            }
+            return;
+        }
+    }
+
+    printf("Directory '%s' not found. Cannot list files.\n", dirName);
+}
+
+void deleteFile(struct FileSystem *fs, const char *dirName, const char *fileName) {
+    for (int i = 0; i < fs->directoryCount; i++) {
+        if (strcmp(fs->directories[i].name, dirName) == 0) {
+            for (int j = 0; j < fs->directories[i].fileCount; j++) {
+                if (strcmp(fs->directories[i].files[j].name, fileName) == 0) {
+                    // Remove the file by shifting remaining files
+                    for (int k = j; k < fs->directories[i].fileCount - 1; k++) {
+                        strcpy(fs->directories[i].files[k].name, fs->directories[i].files[k + 1].name);
+                    }
+                    fs->directories[i].fileCount--;
+                    printf("File '%s' deleted from '%s' directory.\n", fileName, dirName);
+                    return;
+                }
+            }
+            printf("File '%s' not found in '%s' directory. Cannot delete.\n", fileName, dirName);
+            return;
+        }
+    }
+
+    printf("Directory '%s' not found. Cannot delete file '%s'.\n", dirName, fileName);
+}
