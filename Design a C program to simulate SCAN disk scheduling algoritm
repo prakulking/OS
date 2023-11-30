@@ -1,0 +1,31 @@
+#include <stdio.h>
+
+int main() {
+    int queue[20], n, head, i, j, k, seek = 0, diff, temp, max, queue1[20], queue2[20], temp1 = 0, temp2 = 0;
+
+    printf("Enter the max range of disk: ");
+    scanf("%d", &max);
+    printf("Enter the initial head position: ");
+    scanf("%d", &head);
+    printf("Enter the size of queue request: ");
+    scanf("%d", &n);
+    printf("Enter the queue of disk positions to be read: ");
+    for (i = 1; i <= n; i++) {
+        scanf("%d", &temp);
+        if (temp >= head) {
+            queue1[temp1] = temp;
+            temp1++;
+        } else {
+            queue2[temp2] = temp;
+            temp2++;
+        }
+    }
+    // Sort the arrays queue1 and queue2
+    // ...
+    // Perform the C-SCAN algorithm
+    // ...
+    // Output the seek sequence and total seek count
+    // ...
+
+    return 0;
+}
