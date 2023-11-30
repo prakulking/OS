@@ -1,0 +1,66 @@
+#include <stdio.h>
+
+#define MAX_RECORDS 100
+
+struct Record {
+    int id;
+    char data[50];
+};
+
+void writeRecord(FILE *file, struct Record *record) {
+    fwrite(record, sizeof(struct Record), 1, file);
+}
+
+void readRecord(FILE *file, int recordCount) {
+    struct Record record;
+
+    printf("\nReading Records:\n");
+
+    for (int i = 0; i < recordCount; i++) {
+        fread(&record, sizeof(struct Record), 1, file);
+        printf("Record %d: ID = %d, Data = %s\n", i + 1, record.id, record.data);
+    }
+}
+
+int main() {
+    FILE *file;
+    struct Record records[MAX_RECORDS];
+    int recordCount;
+
+    // Open the file for writing
+    file = fopen("sequential_file.dat", "wb");
+
+    if (file == NULL) {
+        fprintf(stderr, "Error opening file for writing\n");
+        return 1;
+    }
+
+    // Simulate writing records to the file
+    printf("Enter the number of records to write: ");
+    scanf("%d", &recordCount);
+
+    for (int i = 0; i < recordCount; i++) {
+        printf("Enter data for Record %d:\n", i + 1);
+        records[i].id = i + 1;
+        scanf("%s", records[i].data);
+        writeRecord(file, &records[i]);
+    }
+
+    fclose(file);
+
+    // Open the file for reading
+    file = fopen("sequential_file.dat", "rb");
+
+    if (file == NULL) {
+        fprintf(stderr, "Error opening file for reading\n");
+        return 1;
+    }
+
+    // Simulate reading records from the file
+    readRecord(file, recordCount);
+
+    // Close the file
+    fclose(file);
+
+    return 0;
+}
