@@ -1,0 +1,86 @@
+#include <stdio.h>
+
+#define MAX_FRAMES 3
+#define MAX_PAGES 10
+
+void printPageTable(int pageTable[], int numFrames) {
+    printf("Page Table: ");
+    for (int i = 0; i < numFrames; i++) {
+        if (pageTable[i] == -1) {
+            printf("[ ] ");
+        } else {
+            printf("[%d] ", pageTable[i]);
+        }
+    }
+    printf("\n");
+}
+
+int isInMemory(int pageTable[], int numFrames, int page) {
+    for (int i = 0; i < numFrames; i++) {
+        if (pageTable[i] == page) {
+            return 1; // Page is in memory
+        }
+    }
+    return 0; // Page is not in memory
+}
+
+int getLRUIndex(int age[], int numFrames) {
+    int minAgeIndex = 0;
+
+    for (int i = 1; i < numFrames; i++) {
+        if (age[i] < age[minAgeIndex]) {
+            minAgeIndex = i;
+        }
+    }
+
+    return minAgeIndex;
+}
+
+void updateAge(int age[], int numFrames, int accessedIndex) {
+    for (int i = 0; i < numFrames; i++) {
+        if (i != accessedIndex) {
+            age[i]++;
+        } else {
+            age[i] = 0; // Reset age for the accessed page
+        }
+    }
+}
+
+void simulateLRU(int referenceString[], int numPages, int numFrames) {
+    int pageTable[MAX_FRAMES];
+    int age[MAX_FRAMES];
+    int pageFaults = 0;
+
+    for (int i = 0; i < numFrames; i++) {
+        pageTable[i] = -1; // Initialize page table with empty frames
+        age[i] = 0;       // Initialize age to 0 for all frames
+    }
+
+    for (int i = 0; i < numPages; i++) {
+        printf("Reference: %d, ", referenceString[i]);
+
+        if (!isInMemory(pageTable, numFrames, referenceString[i])) {
+            int replaceIndex = getLRUIndex(age, numFrames);
+            pageTable[replaceIndex] = referenceString[i];
+            pageFaults++;
+            printf("Page Fault!\n");
+        } else {
+            printf("Page Hit.\n");
+        }
+
+        printPageTable(pageTable, numFrames);
+        updateAge(age, numFrames, replaceIndex);
+    }
+
+    printf("Total Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    // Example reference string
+    int referenceString[MAX_PAGES] = {0, 1, 2, 3, 0, 4, 1, 0, 2, 3};
+
+    // Simulate LRU paging technique
+    simulateLRU(referenceString, MAX_PAGES, MAX_FRAMES);
+
+    return 0;
+}
