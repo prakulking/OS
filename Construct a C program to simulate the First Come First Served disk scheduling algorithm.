@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_REQUESTS 100
+
+void fcfs(int requests[], int numRequests, int initialPosition) {
+    int totalHeadMovement = 0;
+    int currentHeadPosition = initialPosition;
+
+    printf("Sequence of head movement:\n");
+
+    for (int i = 0; i < numRequests; i++) {
+        int distance = abs(requests[i] - currentHeadPosition);
+        totalHeadMovement += distance;
+        currentHeadPosition = requests[i];
+
+        printf("Move from %d to %d (Distance: %d)\n", currentHeadPosition - distance, currentHeadPosition, distance);
+    }
+
+    printf("\nTotal Head Movement: %d\n", totalHeadMovement);
+}
+
+int main() {
+    int requests[MAX_REQUESTS];
+    int numRequests, initialPosition;
+
+    printf("Enter the number of disk requests: ");
+    scanf("%d", &numRequests);
+
+    if (numRequests > MAX_REQUESTS) {
+        fprintf(stderr, "Exceeded maximum number of requests\n");
+        return 1;
+    }
+
+    printf("Enter the initial head position: ");
+    scanf("%d", &initialPosition);
+
+    printf("Enter the disk requests:\n");
+    for (int i = 0; i < numRequests; i++) {
+        printf("Request %d: ", i + 1);
+        scanf("%d", &requests[i]);
+    }
+
+    // Simulate FCFS disk scheduling
+    fcfs(requests, numRequests, initialPosition);
+
+    return 0;
+}
