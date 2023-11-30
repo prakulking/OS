@@ -1,0 +1,21 @@
+#include <stdio.h>
+
+int main() {
+    FILE *fp;
+    char data[50] = "This is a file management example.";
+
+    // Open file
+    fp = fopen("file.txt", "w");
+    if (fp == NULL) {
+        printf("Error opening file");
+        return 1;
+    }
+
+    // Write to file
+    fwrite(data, sizeof(char), sizeof(data), fp);
+
+    // Close file
+    fclose(fp);
+
+    return 0;
+}
