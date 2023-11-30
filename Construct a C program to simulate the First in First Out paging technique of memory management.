@@ -1,0 +1,69 @@
+#include <stdio.h>
+
+#define MAX_FRAMES 3
+#define MAX_PAGES 10
+
+void printPageTable(int pageTable[], int numFrames) {
+    printf("Page Table: ");
+    for (int i = 0; i < numFrames; i++) {
+        if (pageTable[i] == -1) {
+            printf("[ ] ");
+        } else {
+            printf("[%d] ", pageTable[i]);
+        }
+    }
+    printf("\n");
+}
+
+int isInMemory(int pageTable[], int numFrames, int page) {
+    for (int i = 0; i < numFrames; i++) {
+        if (pageTable[i] == page) {
+            return 1; // Page is in memory
+        }
+    }
+    return 0; // Page is not in memory
+}
+
+int getFIFOIndex(int pageTable[], int numFrames, int currentIndex) {
+    // Find the index of the page to be replaced using FIFO
+    return (currentIndex + 1) % numFrames;
+}
+
+void simulateFIFO(int referenceString[], int numPages, int numFrames) {
+    int pageTable[MAX_FRAMES];
+    int pageFaults = 0;
+
+    for (int i = 0; i < numFrames; i++) {
+        pageTable[i] = -1; // Initialize page table with empty frames
+    }
+
+    int currentIndex = 0; // Index to keep track of the current page in the reference string
+
+    for (int i = 0; i < numPages; i++) {
+        printf("Reference: %d, ", referenceString[i]);
+
+        if (!isInMemory(pageTable, numFrames, referenceString[i])) {
+            int replaceIndex = getFIFOIndex(pageTable, numFrames, currentIndex);
+            pageTable[replaceIndex] = referenceString[i];
+            pageFaults++;
+            printf("Page Fault!\n");
+        } else {
+            printf("Page Hit.\n");
+        }
+
+        printPageTable(pageTable, numFrames);
+        currentIndex = (currentIndex + 1) % numPages;
+    }
+
+    printf("Total Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    // Example reference string
+    int referenceString[MAX_PAGES] = {0, 1, 2, 3, 0, 4, 1, 0, 2, 3};
+
+    // Simulate FIFO paging technique
+    simulateFIFO(referenceString, MAX_PAGES, MAX_FRAMES);
+
+    return 0;
+}
