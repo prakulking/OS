@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+#define NUM_READERS 3
+#define NUM_WRITERS 2
+
+sem_t mutex, wrt;
+int data = 0, read_count = 0;
+
+void *reader(void *arg) {
+    int reader_id = *(int *)arg;
+    while (1) {
+        // Entry section
+        sem_wait(&mutex);
+        read_count++;
+        if (read_count == 1) {
+            sem_wait(&wrt);
+        }
+        sem_post(&mutex);
+
+        // Critical section
+        printf("Reader %d is reading data: %d\n", reader_id, data);
+
+        // Exit section
+        sem_wait(&mutex);
+        read_count--;
+        if (read_count == 0) {
+            sem_post(&wrt);
+        }
+        sem_post(&mutex);
+
+        // Non-critical section
+        usleep(100000); // Sleep for a short time to simulate other operations
+    }
+    pthread_exit(NULL);
+}
+
+void *writer(void *arg) {
+    int writer_id = *(int *)arg;
+    while (1) {
+        // Entry section
+        sem_wait(&wrt);
+
+        // Critical section
+        data++;
+        printf("Writer %d is writing data: %d\n", writer_id, data);
+
+        // Exit section
+        sem_post(&wrt);
+
+        // Non-critical section
+        usleep(200000); // Sleep for a short time to simulate other operations
+    }
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t readers[NUM_READERS], writers[NUM_WRITERS];
+    int reader_ids[NUM_READERS], writer_ids[NUM_WRITERS];
+
+    sem_init(&mutex, 0, 1);
+    sem_init(&wrt, 0, 1);
+
+    for (int i = 0; i < NUM_READERS; i++) {
+        reader_ids[i] = i + 1;
+        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
+    }
+
+    for (int i = 0; i < NUM_WRITERS; i++) {
+        writer_ids[i] = i + 1;
+        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
+    }
+
+    // Let the simulation run for some time
+    sleep(5);
+
+    // Cancel threads to end the simulation
+    for (int i = 0; i < NUM_READERS; i++) {
+        pthread_cancel(readers[i]);
+    }
+
+    for (int i = 0; i < NUM_WRITERS; i++) {
+        pthread_cancel(writers[i]);
+    }
+
+    // Clean up and exit
+    sem_destroy(&mutex);
+    sem_destroy(&wrt);
+
+    return 0;
+}
