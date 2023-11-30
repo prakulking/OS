@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include <sys/stat.h>
+#include <pwd.h>
+#include <grp.h>
+
+int main() {
+  char filename[] = "myfile.txt"; // Replace with the desired filename
+  struct stat fileStat;
+
+  // Retrieve file permissions
+  if (stat(filename, &fileStat) == 0) {
+    printf("File Permissions: ");
+
+    // Check owner permissions
+    if (fileStat.st_mode & S_IRUSR) {
+      printf("r");
+    } else {
+      printf("-");
+    }
+    if (fileStat.st_mode & S_IWUSR) {
+      printf("w");
+    } else {
+      printf("-");
+    }
+    if (fileStat.st_mode & S_IXUSR) {
+      printf("x");
+    } else {
+      printf("-");
+    }
+
+    // Check group permissions
+    if (fileStat.st_mode & S_IRGRP) {
+      printf("r");
+    } else {
+      printf("-");
+    }
+    if (fileStat.st_mode & S_IWGRP) {
+      printf("w");
+    } else {
+      printf("-");
+    }
+    if (fileStat.st_mode & S_IXGRP) {
+      printf("x");
+    } else {
+      printf("-");
+    }
+
+    // Check other permissions
+    if (fileStat.st_mode & S_IROTH) {
+      printf("r");
+    } else {
+      printf("-");
+    }
+    if (fileStat.st_mode & S_IWOTH) {
+      printf("w");
+    } else {
+      printf("-");
+    }
+    if (fileStat.st_mode & S_IXOTH) {
+      printf("x");
+    } else {
+      printf("-");
+    }
+
+    printf("\n");
+  } else {
+    printf("Error retrieving file permissions\n");
+  }
+
+  // Retrieve file owner and group information
+  struct passwd *pwd = getpwuid(fileStat.st_uid);
+  struct group *grp = getgrgid(fileStat.st_gid);
+
+  if (pwd != NULL) {
+    printf("File Owner: %s\n", pwd->pw_name);
+  } else {
+    printf("Error retrieving file owner information\n");
+  }
+
+  if (grp != NULL) {
+    printf("File Group: %s\n", grp->gr_name);
+  } else {
+    printf("Error retrieving file group information\n");
+  }
+
+  return 0;
+}
