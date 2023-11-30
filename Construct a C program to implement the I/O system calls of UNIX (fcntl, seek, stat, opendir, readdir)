@@ -109,5 +109,3 @@ int main() {
         close(fd);
         return 1;
     }
-
-    printf("Content of the
