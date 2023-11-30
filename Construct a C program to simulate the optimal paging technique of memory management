@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX_FRAMES 3
+#define MAX_PAGES 10
+
+void printPageTable(int pageTable[], int numFrames) {
+    printf("Page Table: ");
+    for (int i = 0; i < numFrames; i++) {
+        if (pageTable[i] == -1) {
+            printf("[ ] ");
+        } else {
+            printf("[%d] ", pageTable[i]);
+        }
+    }
+    printf("\n");
+}
+
+int isInMemory(int pageTable[], int numFrames, int page) {
+    for (int i = 0; i < numFrames; i++) {
+        if (pageTable[i] == page) {
+            return 1; // Page is in memory
+        }
+    }
+    return 0; // Page is not in memory
+}
+
+int getOptimalIndex(int pageTable[], int referenceString[], int numFrames, int currentIndex, int numPages) {
+    int farthestIndex = -1;
+    int farthestDistance = -1;
+
+    for (int i = 0; i < numFrames; i++) {
+        int nextPageIndex = -1;
+
+        for (int j = currentIndex + 1; j < numPages; j++) {
+            if (referenceString[j] == pageTable[i]) {
+                nextPageIndex = j;
+                break;
+            }
+        }
+
+        if (nextPageIndex == -1) {
+            // If the page will not be referenced again, it is the optimal candidate
+            return i;
+        }
+
+        if (nextPageIndex > farthestDistance) {
+            farthestDistance = nextPageIndex;
+            farthestIndex = i;
+        }
+    }
+
+    return farthestIndex;
+}
+
+void simulateOptimal(int referenceString[], int numPages, int numFrames) {
+    int pageTable[MAX_FRAMES];
+    int pageFaults = 0;
+
+    for (int i = 0; i < numFrames; i++) {
+        pageTable[i] = -1; // Initialize page table with empty frames
+    }
+
+    for (int i = 0; i < numPages; i++) {
+        printf("Reference: %d, ", referenceString[i]);
+
+        if (!isInMemory(pageTable, numFrames, referenceString[i])) {
+            int replaceIndex = getOptimalIndex(pageTable, referenceString, numFrames, i, numPages);
+            pageTable[replaceIndex] = referenceString[i];
+            pageFaults++;
+            printf("Page Fault!\n");
+        } else {
+            printf("Page Hit.\n");
+        }
+
+        printPageTable(pageTable, numFrames);
+    }
+
+    printf("Total Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    // Example reference string
+    int referenceString[MAX_PAGES] = {0, 1, 2, 3, 0, 4, 1, 0, 2, 3};
+
+    // Simulate Optimal paging technique
+    simulateOptimal(referenceString, MAX_PAGES, MAX_FRAMES);
+
+    return 0;
+}
