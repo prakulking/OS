@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define a block structure representing a node in the linked list
+struct Block {
+    char data[50];
+    struct Block *next;
+};
+
+// Define a file structure containing pointers to the first and last blocks
+struct File {
+    struct Block *firstBlock;
+    struct Block *lastBlock;
+};
+
+// Function to write data to the file
+void writeBlock(struct File *file, const char *data) {
+    struct Block *newBlock = (struct Block *)malloc(sizeof(struct Block));
+    if (newBlock == NULL) {
+        fprintf(stderr, "Memory allocation error\n");
+        exit(EXIT_FAILURE);
+    }
+
+    snprintf(newBlock->data, sizeof(newBlock->data), "%s", data);
+    newBlock->next = NULL;
+
+    if (file->firstBlock == NULL) {
+        // If the file is empty, set both first and last blocks to the new block
+        file->firstBlock = newBlock;
+        file->lastBlock = newBlock;
+    } else {
+        // Otherwise, add the new block to the end of the file
+        file->lastBlock->next = newBlock;
+        file->lastBlock = newBlock;
+    }
+}
+
+// Function to read blocks from the file
+void readBlocks(struct File *file) {
+    printf("\nReading Blocks:\n");
+
+    struct Block *currentBlock = file->firstBlock;
+
+    while (currentBlock != NULL) {
+        printf("Block: %s\n", currentBlock->data);
+        currentBlock = currentBlock->next;
+    }
+}
+
+// Function to free memory allocated for blocks
+void freeBlocks(struct File *file) {
+    struct Block *currentBlock = file->firstBlock;
+    struct Block *nextBlock;
+
+    while (currentBlock != NULL) {
+        nextBlock = currentBlock->next;
+        free(currentBlock);
+        currentBlock = nextBlock;
+    }
+
+    // Reset pointers in the file structure
+    file->firstBlock = NULL;
+    file->lastBlock = NULL;
+}
+
+int main() {
+    struct File file;
+
+    // Initialize file structure
+    file.firstBlock = NULL;
+    file.lastBlock = NULL;
+
+    // Simulate writing blocks to the file
+    writeBlock(&file, "Data1");
+    writeBlock(&file, "Data2");
+    writeBlock(&file, "Data3");
+
+    // Simulate reading blocks from the file
+    readBlocks(&file);
+
+    // Free memory allocated for blocks
+    freeBlocks(&file);
+
+    return 0;
+}
