@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+int main() {
+    int fd, n;
+    char buffer[100];
+
+    // Open a file
+    fd = open("file.txt", O_CREAT | O_RDWR, 0777);
+    if (fd == -1) {
+        printf("Failed to open the file\n");
+        return 1;
+    }
+
+    // Write to the file
+    n = write(fd, "Hello, world!", 13);
+    if (n == -1) {
+        printf("Failed to write to the file\n");
+        close(fd);
+        return 1;
+    }
+
+    // Close the file
+    if (close(fd) == -1) {
+        printf("Failed to close the file\n");
+        return 1;
+    }
+
+    // Open the file again to read
+    fd = open("file.txt", O_RDONLY);
+    if (fd == -1) {
+        printf("Failed to open the file for reading\n");
+        return 1;
+    }
+
+    // Read from the file
+    n = read(fd, buffer, 100);
+    if (n == -1) {
+        printf("Failed to read from the file\n");
+        close(fd);
+        return 1;
+    }
+
+    // Close the file
+    if (close(fd) == -1) {
+        printf("Failed to close the file\n");
+        return 1;
+    }
+
+    // Print the read content
+    printf("Read from the file: %s\n", buffer);
+
+    return 0;
+}
