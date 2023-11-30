@@ -1,0 +1,70 @@
+#include <stdio.h>
+
+// Structure to represent memory blocks and processes
+typedef struct {
+    int size;
+    int allocated;
+} Block;
+
+typedef struct {
+    int size;
+    int allocated;
+} Process;
+
+// Function to find the best-fit block for a process
+Block *find_best_fit(Block *blocks, Process *processes, int n, int m) {
+    int best_fit = INT_MAX;
+    int index = -1;
+
+    for (int i = 0; i < n; i++) {
+        if (blocks[i].size >= process->size && blocks[i].allocated == 0) {
+            int fit = process->size / blocks[i].size;
+            if (fit * blocks[i].size < best_fit) {
+                best_fit = fit * blocks[i].size;
+                index = i;
+            }
+        }
+    }
+
+    return &blocks[index];
+}
+
+// Function to allocate memory to processes
+void allocate_memory(Block *blocks, Process *processes, int n, int m) {
+    for (int i = 0; i < m; i++) {
+        Block *best_fit_block = find_best_fit(blocks, processes + i, n, i);
+        if (best_fit_block->allocated == 0) {
+            best_fit_block->allocated = 1;
+            processes[i].allocated = best_fit_block - blocks;
+            printf("Process %d allocated to block %d (size %d)\n", i, best_fit_block - blocks, best_fit_block->size);
+        } else {
+            printf("Process %d not allocated\n", i);
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    printf("Enter the number of blocks: ");
+    scanf("%d", &n);
+    printf("Enter the number of processes: ");
+    scanf("%d", &m);
+
+    Block blocks[0].size = 500;
+    blocks[0].allocated = 0;
+    blocks[1].size = 400;
+    blocks[1].allocated = 0;
+    blocks[2].size = 300;
+    blocks[2].allocated = 0;
+
+    Process processes[0].size = 100;
+    processes[0].allocated = 0;
+    Process processes[1].size = 350;
+    processes[1].allocated = 0;
+    Process processes[2].size = 400;
+    processes[2].allocated = 0;
+
+    allocate_memory(blocks, processes, n, m);
+
+    return 0;
+}
